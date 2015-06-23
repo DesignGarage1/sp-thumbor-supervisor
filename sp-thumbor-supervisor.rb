@@ -13,10 +13,16 @@ end
 
 ########## Event Handler ##########
 def app_event_handler(app)
+  last_memory_usage = ""
+
   return lambda do |event|
     if event.instance_of? Whacamole::Events::DynoRestart
-      $logger.warn "[#{app}] RESTART"
+      $logger.warn "[#{app}] RESTART. Usage: #{last_memory_usage}"
     else
+      if event.instance_of? Whacamole::Events::DynoSize
+        last_memory_usage = "#{event.size} #{event.units}"
+      end
+
       if Settings::LOG_ALL_EVENTS
         if event.instance_of? Whacamole::Events::DynoSize
           $logger.debug "[#{app}] {#{event.size} #{event.units}}" % [event.size, event.units]
